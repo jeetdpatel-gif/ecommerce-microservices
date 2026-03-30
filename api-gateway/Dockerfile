@@ -1,12 +1,15 @@
-## start with a base image
-FROM maven:latest
-VOLUME /tmp
-ARG PROJECT_VERSION=0.0.1
-RUN mkdir -p /home/app
+# Stage 1: Build the JAR
+FROM maven:latest AS build
 WORKDIR /home/app
-ENV SPRING_PROFILES_ACTIVE application
-COPY ./ .
-ADD target/api-gateway-0.0.1-SNAPSHOT.jar api-gateway-0.0.1-SNAPSHOT.jar
+COPY . .
+# This creates the JAR inside the container's /home/app/target folder
+RUN mvn clean package -DskipTests
+
+# Stage 2: Create the final lean image
+FROM openjdk:17-jdk-slim
+WORKDIR /home/app
+# Copy only the JAR from the 'build' stage
+COPY --from=build /home/app/target/api-gateway-0.0.1-SNAPSHOT.jar .
 EXPOSE 8888
 ENTRYPOINT ["java", "-jar", "api-gateway-0.0.1-SNAPSHOT.jar"]
 CMD ["mvn", "spring-boot:run"]
