@@ -6,7 +6,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Stage 2: Create the final lean image
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /home/app
 # Copy only the JAR from the 'build' stage
 COPY --from=build /home/app/target/api-gateway-0.0.1-SNAPSHOT.jar .
