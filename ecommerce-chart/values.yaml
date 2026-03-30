@@ -1,0 +1,25 @@
+services:
+  # 1. Discovery Service (Eureka) - No DB needed
+  discovery-server:
+    replicas: 1
+    port: 8761
+    image:
+      repository: "springcloud/eureka"
+      tag: "latest"
+
+  # 2. API Gateway - No DB needed
+  api-gateway:
+    replicas: 1
+    port: 8080
+    image:
+      repository: "springcloud/gateway"
+      tag: "latest"
+
+  # 3. Product Service (Mocked to avoid DB errors)
+  product-service:
+    replicas: 1
+    port: 5678
+    image:
+      repository: "hashicorp/http-echo"
+      tag: "latest"
+    command: ["-text='Product Service POC is LIVE - No DB Required'"]

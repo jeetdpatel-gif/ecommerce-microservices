@@ -1,0 +1,33 @@
+{{- range $serviceName, $config := .Values.services }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $serviceName }}
+  labels:
+    app: {{ $serviceName }}
+spec:
+  replicas: {{ $config.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app: {{ $serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ $serviceName }}
+    spec:
+      containers:
+        - name: {{ $serviceName }}
+          image: "{{ $config.image.repository }}:{{ $config.image.tag | default "latest" }}"
+          ports:
+            - containerPort: {{ $config.port }}
+          # Bypass DB dependencies for POC using H2 in-memory DB
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:h2:mem:testdb"
+            - name: SPRING_PROFILES_ACTIVE
+              value: "dev"
+{{- if $config.command }}
+          command: {{ $config.command | toJson }}
+{{- end }}
+{{- end }}
